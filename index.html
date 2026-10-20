@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Life Size</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<style>
+:root {
+  color-scheme: light dark;
+  --paper: #F5F7F6;
+  --surface: #FFFFFF;
+  --ink: #1C2430;
+  --steel: #6E7884;
+  --line: #D8DDE2;
+  --tape: #F2C230;
+  --tape-ink: #1C2430;
+  --mark: #C8372D;
+  --ok: #2E7D4F;
+  --stage: #E9EDEF;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #151A22;
+    --surface: #1F2631;
+    --ink: #E8ECEF;
+    --steel: #9AA4AF;
+    --line: #313A47;
+    --stage: #1A2029;
+    --ok: #5CC28A;
+    --mark: #F0705F;
+  }
+}
+*, *::before, *::after { box-sizing: inherit; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1rem/1.5 "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+main { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+
+header h1 {
+  font: 700 3rem/1 "Barlow Condensed", "Arial Narrow", sans-serif;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+header p { margin: .35rem 0 1.25rem; color: var(--steel); max-width: 34em; }
+
+.stage {
+  position: relative;
+  background: var(--stage);
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+}
+model-viewer {
+  width: 100%;
+  height: min(62vh, 480px);
+  background: transparent;
+  --poster-color: transparent;
+  --progress-bar-color: var(--tape);
+}
+.ar-btn {
+  position: absolute;
+  left: 50%; bottom: 1rem;
+  transform: translateX(-50%);
+  border: 0;
+  border-radius: 999px;
+  padding: .8rem 1.4rem;
+  background: var(--tape);
+  color: var(--tape-ink);
+  font: 600 1rem/1 "Barlow", sans-serif;
+  box-shadow: 0 2px 0 rgba(0,0,0,.25);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.stage-msg {
+  position: absolute; inset: 0;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: var(--steel);
+}
+.stage-msg.show { display: flex; }
+.stage-msg code { color: var(--ink); }
+
+/* The tape measure: the one bold element */
+.tape {
+  background-color: var(--tape);
+  color: var(--tape-ink);
+  border-radius: 0 0 14px 14px;
+  padding: 1.6rem 1rem .9rem;
+  position: relative;
+  background-image:
+    repeating-linear-gradient(90deg, var(--tape-ink) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, var(--tape-ink) 0 2px, transparent 2px 50px);
+  background-size: 100% 8px, 100% 16px;
+  background-repeat: no-repeat;
+  background-position: 0 0, 0 0;
+}
+.tape-row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.dim { min-width: 5.5rem; }
+.dim b {
+  display: block;
+  font: 700 2.25rem/1 "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.dim b small { font-size: 1.1rem; font-weight: 500; margin-left: .1em; }
+.dim span { font-size: .9rem; }
+.verdict { margin: .7rem 0 0; font-weight: 500; font-size: .95rem; }
+
+h2 {
+  font: 700 1.6rem/1.1 "Barlow Condensed", "Arial Narrow", sans-serif;
+  margin: 2.25rem 0 .75rem;
+}
+.picker { display: grid; gap: .5rem; }
+.pick {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  width: 100%;
+  text-align: left;
+  padding: .85rem 1rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+.pick strong { font-weight: 600; }
+.pick em { font-style: normal; color: var(--steel); font-size: .9rem; white-space: nowrap; }
+.pick[aria-pressed="true"] { border-left-color: var(--tape); }
+
+.own {
+  background: var(--surface);
+  border: 1px dashed var(--steel);
+  border-radius: 8px;
+  padding: 1rem;
+}
+.own p { margin: 0 0 .75rem; color: var(--steel); }
+.file-btn {
+  display: inline-block;
+  padding: .65rem 1.1rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  cursor: pointer;
+}
+.own input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.note { font-size: .9rem; color: var(--steel); margin-top: 1rem; }
+button:focus-visible, .file-btn:focus-within { outline: 3px solid var(--mark); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Life Size</h1>
+    <p>See things at their real size through your phone camera. Pick a model, then place it on your floor.</p>
+  </header>
+
+  <div class="stage">
+    <model-viewer id="mv"
+      camera-controls touch-action="pan-y"
+      shadow-intensity="1"
+      ar ar-modes="webxr scene-viewer quick-look"
+      ar-scale="fixed" ar-placement="floor"
+      alt="3D model">
+      <button slot="ar-button" class="ar-btn">View life size in your room</button>
+    </model-viewer>
+    <div class="stage-msg" id="stageMsg"></div>
+  </div>
+
+  <div class="tape" aria-live="polite">
+    <div class="tape-row">
+      <div class="dim"><b id="dLen">–</b><span>Length</span></div>
+      <div class="dim"><b id="dHgt">–</b><span>Height</span></div>
+      <div class="dim"><b id="dWid">–</b><span>Width</span></div>
+    </div>
+    <p class="verdict" id="verdict">Measuring…</p>
+  </div>
+
+  <h2>Models</h2>
+  <div class="picker" id="picker"></div>
+
+  <h2>Test your own scan</h2>
+  <div class="own">
+    <p>Load a GLB file from your phone or computer to check its size before adding it to the collection.</p>
+    <label class="file-btn">Choose a GLB file<input type="file" id="fileIn" accept=".glb,model/gltf-binary"></label>
+  </div>
+  <p class="note" id="arNote"></p>
+</main>
+
+<script>
+/* ---------- Catalogue ----------
+   Add your models here. Put files in the /models folder.
+   usdz is optional: without it, iPhone converts the GLB automatically,
+   but a USDZ exported from your scan usually looks better in Quick Look.
+   expect: real-world ranges in metres, used to check the scale. */
+const CATALOGUE = [
+  {
+    id: "maine-coon",
+    name: "Maine Coon (adult male)",
+    size: "up to about 1 m long",
+    glb: "models/maine-coon.glb",
+    usdz: "models/maine-coon.usdz",
+    expect: { length: [0.75, 1.05], height: [0.25, 0.42] }
+  },
+  {
+    id: "house-cat",
+    name: "Average house cat",
+    size: "about 75 cm long",
+    glb: "models/house-cat.glb",
+    usdz: "models/house-cat.usdz",
+    expect: { length: [0.65, 0.85], height: [0.22, 0.28] }
+  },
+  {
+    id: "demo",
+    name: "Demo: astronaut",
+    size: "test model",
+    glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+    usdz: "https://modelviewer.dev/shared-assets/models/Astronaut.usdz",
+    expect: null
+  }
+];
+
+const mv = document.getElementById("mv");
+const stageMsg = document.getElementById("stageMsg");
+const verdict = document.getElementById("verdict");
+const picker = document.getElementById("picker");
+let current = null;
+let localUrl = null;
+
+function cm(m) { return Math.round(m * 100); }
+function showDims(len, hgt, wid) {
+  document.getElementById("dLen").innerHTML = len == null ? "–" : `${cm(len)}<small>cm</small>`;
+  document.getElementById("dHgt").innerHTML = hgt == null ? "–" : `${cm(hgt)}<small>cm</small>`;
+  document.getElementById("dWid").innerHTML = wid == null ? "–" : `${cm(wid)}<small>cm</small>`;
+}
+function setVerdict(text, colour) {
+  verdict.textContent = text;
+  verdict.style.color = colour || "";
+}
+
+function loadModel(item) {
+  current = item;
+  stageMsg.classList.remove("show");
+  showDims(null, null, null);
+  setVerdict("Measuring…");
+  mv.alt = item.name;
+  if (item.usdz) mv.setAttribute("ios-src", item.usdz); else mv.removeAttribute("ios-src");
+  mv.src = item.glb;
+  picker.querySelectorAll(".pick").forEach(b =>
+    b.setAttribute("aria-pressed", b.dataset.id === item.id ? "true" : "false"));
+}
+
+mv.addEventListener("load", () => {
+  const d = mv.getDimensions();               // metres
+  const len = Math.max(d.x, d.z), wid = Math.min(d.x, d.z), hgt = d.y;
+  showDims(len, hgt, wid);
+  const ex = current && current.expect;
+  if (!ex) { setVerdict("Real-world size as stored in the file."); return; }
+  const [lo, hi] = ex.length;
+  if (len >= lo && len <= hi) {
+    setVerdict("Scale looks right for the real thing.", "var(--ok)");
+  } else {
+    const mid = (lo + hi) / 2;
+    const f = len < lo ? mid / len : len / mid;
+    const way = len < lo ? "too small" : "too big";
+    const hint = f > 50 ? " The file may be in centimetres or millimetres instead of metres." : " Rescale it in Blender before adding it.";
+    setVerdict(`About ${f < 10 ? f.toFixed(1) : Math.round(f)}× ${way}.${hint}`, "var(--mark)");
+  }
+});
+
+mv.addEventListener("error", () => {
+  showDims(null, null, null);
+  setVerdict("No model loaded.");
+  const file = current && current.glb ? current.glb : "the model file";
+  stageMsg.innerHTML = `This model hasn’t been added yet.<br>Put <code>${file}</code> in the site folder and reload.`;
+  stageMsg.classList.add("show");
+});
+
+CATALOGUE.forEach(item => {
+  const b = document.createElement("button");
+  b.className = "pick";
+  b.dataset.id = item.id;
+  b.setAttribute("aria-pressed", "false");
+  b.innerHTML = `<strong>${item.name}</strong><em>${item.size}</em>`;
+  b.addEventListener("click", () => loadModel(item));
+  picker.appendChild(b);
+});
+
+document.getElementById("fileIn").addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (localUrl) URL.revokeObjectURL(localUrl);
+  localUrl = URL.createObjectURL(f);
+  loadModel({ id: "local", name: f.name, glb: localUrl, usdz: null, expect: null });
+  setVerdict("Measuring your file…");
+});
+
+/* Tell people on a computer why the AR button is missing */
+setTimeout(() => {
+  const note = document.getElementById("arNote");
+  note.textContent = mv.canActivateAR
+    ? "Tip: tap the yellow button, point your camera at the floor, then move the phone slowly until the model appears."
+    : "AR works on an iPhone, iPad or ARCore Android phone. On this device you can still rotate and measure the 3D preview.";
+}, 1500);
+
+const start = CATALOGUE.find(i => i.id === (location.hash.slice(1) || "demo")) || CATALOGUE[2];
+loadModel(start);
+</script>
+</body>
+</html>
